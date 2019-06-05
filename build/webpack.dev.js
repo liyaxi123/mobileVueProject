@@ -30,7 +30,14 @@ const devConfig = {
                 use: [
                     'vue-style-loader',
                     'css-loader',
-                    'postcss-loader'
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                           config: {
+                               path: '@/../postcss.config.js'
+                           }
+                        }
+                    }
                 ]
             }
         ]

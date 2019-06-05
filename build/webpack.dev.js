@@ -30,6 +30,7 @@ const devConfig = {
                 use: [
                     'vue-style-loader',
                     'css-loader',
+                    'sass-loader',
                     {
                         loader: 'postcss-loader',
                         options: {

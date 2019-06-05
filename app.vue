@@ -1,9 +1,9 @@
 <template>
-    <div id="app">你是谁</div>
+    <div id="app"><span>123</span></div>
 </template>
 
 <script>
-import '@/style/common.css'
+import '@/style/common.scss'
     export default {
     }
 </script>

@@ -1,12 +1,20 @@
 <template>
   <div class="recommend" ref="recommend">
-    <slider v-if="recommends.length">
-      <div v-for="item in recommends" :key="item.linkUrl">
-        <a :href="item.linkUrl">
-          <img :src="item.picUrl">
-        </a>
+    <div class="recommend-content">
+      <div class="slider-wrapper">
+         <slider v-if="recommends.length">
+          <div v-for="item in recommends" :key="item.linkUrl">
+            <a :href="item.linkUrl">
+              <img :src="item.picUrl">
+            </a>
+          </div>
+        </slider>
       </div>
-    </slider>
+      <div class="recommend-list">
+        <h1 class="list-title">热门歌单推荐</h1>
+        <ul></ul>
+      </div>
+    </div>
   </div>
 </template>
 

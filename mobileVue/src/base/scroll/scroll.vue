@@ -5,11 +5,12 @@
 </template>
 
 <script>
+import BScroll from 'better-scroll'
 export default {
     props: {
         probeType: {
             type: Number,
-            default: 1
+            default: 1 // 获取滚动位置的方式
         },
         click: {
             type: Boolean,
@@ -57,7 +58,7 @@ export default {
                 })
             }
             if (this.pullup) {
-                this.scroll.on('scrollEnd', () => {
+                this.scroll.on('scrollEnd', () => { // maxScrollY纵向最大滚动位置
                     if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
                         this.$emit('scrollToEnd')
                     }
@@ -76,7 +77,7 @@ export default {
             this.scroll && this.scroll.enable()
         },
         refresh () {
-            this.scroll && this.scroll.refresh()
+            this.scroll && this.scroll.refresh() // 重新计算better-scroll， 当DOM结构发生变化时，务必要调用
         },
         scrollTo () {
             this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)

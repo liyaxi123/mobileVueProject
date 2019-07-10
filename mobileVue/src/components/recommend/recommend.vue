@@ -3,11 +3,11 @@
     <div class="recommend-content">
       <div class="slider-wrapper">
          <slider v-if="recommends.length">
-          <div v-for="item in recommends" :key="item.linkUrl">
+          <li v-for="item in recommends" :key="item.linkUrl">
             <a :href="item.linkUrl">
               <img :src="item.picUrl">
             </a>
-          </div>
+          </li>
         </slider>
       </div>
       <div class="recommend-list">
@@ -21,8 +21,8 @@
 <script>
 import Slider from '@/base/slider/slider.vue'
 import { getRecommendData } from '@/api/recommend.js'
-// import Loading from '@/base/loading/loading'
-// import Scroll from '@/base/scroll/scroll.vue'
+import Loading from '@/base/loading/loading'
+import Scroll from '@/base/scroll/scroll.vue'
 export default {
   data () {
     return {
@@ -49,4 +49,14 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import '@/common/scss/variable.scss';
+.recommend-list {
+  .list-title {
+    width: 100%;
+    color: $color-theme;
+    text-align: center;
+    margin: 10px 0;
+    font-size: 10px;
+  }
+}
 </style>

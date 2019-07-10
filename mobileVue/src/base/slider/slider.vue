@@ -1,10 +1,10 @@
 <template>
     <div class="slider" ref="slider">
-        <div class="slider-group" ref="sliderGroup">
+        <ul class="slider-group" ref="sliderGroup">
             <slot></slot>
-        </div>
+        </ul>
         <div class="dots">
-            <span class="dot" :class="{active: currentPageIndex === index }" v-for="(item, index) in dots">
+            <span class="dot" :class="{active: currentPageIndex === index }" v-for="(item, index) in dots" :key="index">
             </span>
         </div>
     </div>
@@ -99,36 +99,40 @@ export default {
       })
       this.slider.on('scrollEnd', () => {
         let pageIndex = this.slider.getCurrentPage().pageX // 横轴方向的页面数（当前页面的信息）
-        console.log(pageIndex + '测试')
-        if (this.loop) {
-          pageIndex -= 1
-        }
+        // console.log(pageIndex + '测试')
+        // if (this.loop) {
+        //   pageIndex -= 1
+        // }
         this.currentPageIndex = pageIndex
-        console.log(this.currentPageIndex + 'currentPage')
+        // console.log(this.currentPageIndex + 'currentPage')
         if (this.autoPlay) {
           clearTimeout(this.timer)
           this._play()
         }
       })
-      // this.slider.on('beforeScrollStrat', () => {
-      //   if (this.autoPlay) {
-      //     clearTimeout(this.timer)
-      //   }
-      // })
+      this.slider.on('beforeScrollStrat', () => {
+        if (this.autoPlay) {
+          clearTimeout(this.timer)
+        }
+      })
     },
     _initDots () {
       this.dots = new Array(this.children.length)
     },
     _play () {
-      let pageIndex = this.currentPageIndex + 1
-      console.log(1111111)
-      if (this.loop && this.flag) {
-        this.flag = false
-        pageIndex += 1
-      }
-      console.log(pageIndex+ 'pageIndex')
+      // let pageIndex = this.currentPageIndex + 1
+      // console.log(pageIndex + 'currentPageIndex')
+      // console.log(1111111)
+      // if (this.loop) {
+      //   pageIndex += 1
+      // }
+      // console.log(pageIndex+ 'pageIndex')
       this.timer = setTimeout(() => {
-        this.slider.goToPage(pageIndex, 0, 400) // 滚动到指定的页面
+        // this.slider.goToPage(pageIndex, 0, 400) // 滚动到指定的页面,第一页为1
+        // if (pageIndex === 5) {
+        //   this.slider.goToPage(0, 0, 400)
+        // }
+        this.slider.next()
       }, this.interval)
     }
   }

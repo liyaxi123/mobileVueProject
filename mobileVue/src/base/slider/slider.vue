@@ -50,7 +50,7 @@ export default {
       if (!this.slider) {
         return true
       }
-      this._setSliderWidth(true)
+      this._setSliderWidth()
       this.slider.refresh() // 重新计算宽度
     })
   },
@@ -66,7 +66,7 @@ export default {
     clearTimeout(this.timer)
   },
   methods: {
-    _setSliderWidth (isResize) {
+    _setSliderWidth () {
       this.children = this.$refs.sliderGroup.children // 获取可滚动容器内的所有子对象
       let width = 0
       let sliderWidth = this.$refs.slider.clientWidth // 获取父容器的可视宽度
@@ -76,7 +76,7 @@ export default {
         child.style.width = sliderWidth + 'px' // 设置子对象宽度为父容器宽度
         width += sliderWidth
       }
-      if (this.loop && !isResize) {
+      if (this.loop) {
         width += 2 * sliderWidth
       }
       this.$refs.sliderGroup.style.width = width + 'px'
@@ -94,8 +94,7 @@ export default {
           loop: true,
           threshold: 0.3,
           speed: 400
-        },
-        click: true
+        }
       })
       this.slider.on('scrollEnd', () => {
         let pageIndex = this.slider.getCurrentPage().pageX // 横轴方向的页面数（当前页面的信息）

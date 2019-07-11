@@ -1,6 +1,6 @@
 <template>
   <div class="recommend" ref="recommend">
-    <div class="recommend-content">
+    <scroll class="recommend-content" ref="scroll" :data="hotSongList" v-if="hotSongList.length">
       <div class="slider-wrapper">
          <slider v-if="recommends.length">
           <li v-for="item in recommends" :key="item.linkUrl">
@@ -24,7 +24,7 @@
           </li>
         </ul>
       </div>
-    </div>
+    </scroll>
   </div>
 </template>
 
@@ -41,7 +41,8 @@ export default {
     }
   },
   components: {
-    Slider
+    Slider,
+    Scroll
   },
   methods: {
     _getRecommend () {
@@ -55,6 +56,7 @@ export default {
     }
   },
   created () {
+    // 获取轮播图数据
     this._getRecommend()
   }
 }

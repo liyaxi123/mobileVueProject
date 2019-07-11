@@ -89,7 +89,7 @@ export default {
     watch: {
         data () {
             setTimeout(() => {
-                this.refresh()
+              this.scroll.refresh()
             }, this.refreshDelay)
         }
     }

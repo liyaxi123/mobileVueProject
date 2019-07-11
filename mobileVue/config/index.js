@@ -21,6 +21,13 @@ module.exports = {
         pathRewrite: {
           '^/api/getRecommendList': ''
         }
+      },
+      '/api/getRecommend': {
+        target: 'https://u.y.qq.com/cgi-bin/musicu.fcg',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api/getRecommend': ''
+        }
       }
     },
 

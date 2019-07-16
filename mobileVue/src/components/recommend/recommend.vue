@@ -1,11 +1,12 @@
 <template>
   <div class="recommend" ref="recommend">
     <scroll class="recommend-content" ref="scroll" :data="hotSongList" v-if="hotSongList.length">
-      <div class="slider-wrapper">
-         <slider v-if="recommends.length">
+      <div>
+      <div class="slider-wrapper" v-if="recommends.length">
+         <slider>
           <li v-for="item in recommends" :key="item.linkUrl">
             <a :href="item.linkUrl">
-              <img :src="item.picUrl">
+              <img :src="item.picUrl" @load="loadIamge" class="needsclick">
             </a>
           </li>
         </slider>
@@ -15,7 +16,7 @@
         <ul>
           <li v-for="item in hotSongList" :key="item.accessnum" class="item">
             <div class="icon">
-              <img :src="item.picUrl" width="96" height="96">
+              <img v-lazy="item.picUrl" width="96" height="96">
             </div>
             <div class="text">
               <h1 class="desc">{{item.songListDesc}}</h1>
@@ -23,6 +24,8 @@
             </div>
           </li>
         </ul>
+        <loading v-if="!hotSongList.length" class="loading"></loading>
+      </div>
       </div>
     </scroll>
   </div>
@@ -30,19 +33,21 @@
 
 <script>
 import Slider from '@/base/slider/slider.vue'
+import Scroll from '@/base/scroll/scroll.vue'
 import { getRecommendData } from '@/api/recommend.js'
 import Loading from '@/base/loading/loading'
-import Scroll from '@/base/scroll/scroll.vue'
 export default {
   data () {
     return {
       recommends: [],
-      hotSongList: []
+      hotSongList: [],
+      checkImg: true
     }
   },
   components: {
     Slider,
-    Scroll
+    Scroll,
+    Loading
   },
   methods: {
     _getRecommend () {
@@ -53,6 +58,13 @@ export default {
           this.hotSongList = data.data.songList
         }
       })
+    },
+    // @load事件是在src资源加载后才会触发
+    loadIamge () {
+      if (this.checkImg) {
+        this.checkImg = false
+        this.$refs.scroll.refresh()
+      }
     }
   },
   created () {
@@ -64,42 +76,103 @@ export default {
 
 <style scoped lang="scss">
 @import '@/common/scss/variable.scss';
-.recommend-list {
-  .list-title {
+.recommend {
+  position: fixed;
+  width: 100%;
+  top: 88px;
+  bottom: 0;
+  .recommend-content {
+  height: 100%;
+  overflow: hidden;
+  .slider-wrapper {
+    position: relative;
     width: 100%;
-    height: 65px;
-    line-height: 65px;
-    color: $color-theme;
-    text-align: center;
-    font-size: $font-size-medium;
+    overflow: hidden;
   }
-  .item {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      margin: 5px 5px;
-      .icon {
-        flex: 0 0 60px;
-        width: 60px;
-        padding-right: 20px;
-      }
-      .text {
-        flex: 1;
+  .recommend-list {
+    position: relative;
+    .loading {
+      position: absolute;
+      top: 20%;
+    }
+    .list-title {
+      width: 100%;
+      height: 65px;
+      line-height: 65px;
+      color: $color-theme;
+      text-align: center;
+      font-size: $font-size-medium;
+    }
+    .item {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        line-height: 20px;
-        overflow: hidden;
-        font-size: $font-size-small;
-        .name {
-          color: $color-text-d;
-          font-size: $font-size-small-s;
+        flex-direction: row;
+        align-items: center;
+        margin: 5px 5px;
+        .icon {
+          flex: 0 0 60px;
+          width: 60px;
+          padding-right: 20px;
         }
-        .desc {
-          color: $color-text;
-          margin-bottom: 10px;
+        .text {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          line-height: 20px;
+          overflow: hidden;
+          font-size: $font-size-small;
+          .name {
+            color: $color-text-d;
+            font-size: $font-size-small-s;
+          }
+          .desc {
+            color: $color-text;
+            margin-bottom: 10px;
+          }
         }
       }
     }
+  }
 }
+//  .recommend {
+//     position: fixed;
+//     width: 100%;
+//     top: 88px;
+//     bottom: 0;
+//     .recommend-content {
+//       height: 100%;
+//       overflow: hidden;
+//       .slider-wrapper {
+//         position: relative;
+//         width: 100%;
+//         overflow: hidden }
+//       .recommend-list {
+//         .list-title {
+//           height: 65px;
+//           line-height: 65px;
+//           text-align: center;
+//           font-size: $font-size-medium;
+//           color: $color-theme}
+//         .item {
+//           display: flex;
+//           box-sizing: border-box;
+//           align-items: center;
+//           padding: 0 20px 20px 20px ;
+//           .icon {
+//             flex: 0 0 60px;
+//             width: 60px;
+//             padding-right: 20px}
+//           .text {
+//             display: flex;
+//             flex-direction: column;
+//             justify-content: center;
+//             flex: 1;
+//             line-height: 20px;
+//             overflow: hidden;
+//             font-size: $font-size-medium }
+//             .name {
+//               margin-bottom: 10px;
+//               color: $color-text }
+//             .desc {
+//               color: $color-text-d }}}}}
 </style>

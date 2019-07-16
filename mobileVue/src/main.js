@@ -3,10 +3,14 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import VueLazyload from 'vue-lazyload'
 import '@/common/scss/index.scss'
 
 Vue.config.productionTip = false
-
+Vue.use(VueLazyload, {
+  preLoad: 2,
+  loading: require('@/common/image/default.png')
+})
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

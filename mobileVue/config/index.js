@@ -28,7 +28,14 @@ module.exports = {
         pathRewrite: {
           '^/api/getRecommend': ''
         }
-      }
+      },
+      '/api/getSingerList': {
+        target: 'https://u.y.qq.com/cgi-bin/musicu.fcg',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api/getSingerList': ''
+        }
+      },
     },
 
     // Various Dev Server settings

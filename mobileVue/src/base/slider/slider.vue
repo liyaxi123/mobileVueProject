@@ -90,6 +90,7 @@ export default {
         // snapLoop: this.loop, //循环播放
         // snapThreshold: 0.3, // 播放到下一个所用时间
         // snapSpeed: 400, // 速度
+        click: true,
         snap: {
           loop: true,
           threshold: 0.3,

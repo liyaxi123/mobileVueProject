@@ -16,11 +16,11 @@
         <ul>
           <li v-for="item in hotSongList" :key="item.accessnum" class="item">
             <div class="icon">
-              <img v-lazy="item.picUrl" width="96" height="96">
+              <img v-lazy="item.cover" width="96" height="96">
             </div>
             <div class="text">
-              <h1 class="desc">{{item.songListDesc}}</h1>
-              <h1 class="name">{{item.songListAuthor}}</h1>
+              <h1 class="desc">{{item.title}}</h1>
+              <h1 class="name">播放量:{{item.listen_num}}</h1>
             </div>
           </li>
         </ul>
@@ -34,7 +34,7 @@
 <script>
 import Slider from '@/base/slider/slider.vue'
 import Scroll from '@/base/scroll/scroll.vue'
-import { getRecommendData } from '@/api/recommend.js'
+import { getRecommendData, getRecommendList } from '@/api/recommend.js'
 import Loading from '@/base/loading/loading'
 export default {
   data () {
@@ -55,7 +55,6 @@ export default {
         let data = res.data
         if (data.code === 0) {
           this.recommends = data.data.slider
-          this.hotSongList = data.data.songList
         }
       })
     },
@@ -65,11 +64,18 @@ export default {
         this.checkImg = false
         this.$refs.scroll.refresh()
       }
+    },
+    // 获取推荐歌曲菜单
+    _getRecommendList () {
+      getRecommendList().then(res => {
+        this.hotSongList = res.data.recomPlaylist.data.v_hot
+      })
     }
   },
   created () {
     // 获取轮播图数据
     this._getRecommend()
+    this._getRecommendList()
   }
 }
 </script>

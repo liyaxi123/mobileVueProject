@@ -1,7 +1,6 @@
 <template>
     <div class="singer" ref="singer">
-      <list-view></list-view>
-      <router-view></router-view>
+      <list-view :data="singerList"></list-view>
     </div>
 </template>
 
@@ -51,14 +50,14 @@ export default {
             items: []
           }
         } else {
-          map['D'] = {
+          map.D = {
             title: 'D',
             items: []
           }
         }
         // 再插入数据     必须先创建结构再插入数据不然会报错！！！
         if (reg.test(firstLetter)) {
-          map['D'].items.push(item)
+          map.D.items.push(item)
         } else {
           map[firstLetter].items.push(item)
         }
@@ -85,4 +84,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.singer {
+  position: fixed;
+  top: 88px;
+  bottom: 0;
+  width: 100%;
+}
 </style>

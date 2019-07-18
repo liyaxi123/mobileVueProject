@@ -134,6 +134,7 @@ export default {
           .desc {
             color: $color-text;
             margin-bottom: 10px;
+            font-size: $font-size-small
           }
         }
       }

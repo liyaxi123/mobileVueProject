@@ -51,12 +51,12 @@ export default {
         probeType: this.probeType, // scroll事件触发方式
         click: false // better-scroll会默认阻止click点击事件，设置为true会派发一个click事件
       })
-      // if (this.listenScroll) {
-      //     let me = this
-      //     this.scroll.on('scroll', pos => {
-      //         me.$emit('scroll', pos)
-      //     })
-      // }
+      if (this.listenScroll) {
+        let me = this
+        this.scroll.on('scroll', pos => {
+          me.$emit('scroll', pos)
+        })
+      }
       // if (this.pullup) {
       //     this.scroll.on('scrollEnd', () => { // maxScrollY纵向最大滚动位置
       //         if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {

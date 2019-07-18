@@ -49,7 +49,7 @@ export default {
             title: firstLetter,
             items: []
           }
-        } else {
+        } else if (reg.test(firstLetter)) {
           map.D = {
             title: 'D',
             items: []

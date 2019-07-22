@@ -49,7 +49,7 @@ export default {
       }
       this.scroll = new BScroll(this.$refs.wrappers, {
         probeType: this.probeType, // scroll事件触发方式
-        click: false // better-scroll会默认阻止click点击事件，设置为true会派发一个click事件
+        click: true // better-scroll会默认阻止click点击事件，设置为true会派发一个click事件
       })
       if (this.listenScroll) {
         let me = this

@@ -36,8 +36,14 @@ module.exports = {
           '^/api/getSingerList': ''
         }
       },
+      '/api/getSingerDetail': {
+        target: 'https://u.y.qq.com/cgi-bin/musicu.fcg',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api/getSingerDetail': ''
+        }
+      }
     },
-
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined

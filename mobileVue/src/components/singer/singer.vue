@@ -1,6 +1,7 @@
 <template>
     <div class="singer" ref="singer">
-      <list-view :data="singerList"></list-view>
+      <list-view :data="singerList" @selectItem="selectItem"></list-view>
+      <router-view></router-view>
     </div>
 </template>
 
@@ -8,6 +9,7 @@
 import { getSingerInfo } from '@/api/singer.js'
 import ListView from '@/base/listview/listview.vue'
 import pinyin from 'js-pinyin'
+import { mapMutations, mapGetters } from 'vuex'
 const HOT_SINGER_LEN = 10
 const HOT_NAME = '热门'
 export default {
@@ -15,6 +17,11 @@ export default {
     return {
       singerList: []
     }
+  },
+  computed: {
+    ...mapGetters([
+      'transition1'
+    ])
   },
   components: {
     ListView
@@ -26,7 +33,6 @@ export default {
     _getSingerList () {
       getSingerInfo().then(res => {
         this.singerList = this._normalSingerList(res.data.singerList.data.singerlist)
-        console.log(this.singerList)
       }).catch(err => { console.log(err) })
     },
     _normalSingerList (list) {
@@ -78,7 +84,16 @@ export default {
         return a.title.charCodeAt(0) - b.title.charCodeAt(0)
       })
       return hot.concat(ret)
-    }
+    },
+    selectItem (param) {
+      this.$router.push({path: `/singer/${param.singer_id}`})
+      this.SET_SINGER(param)
+      this.SET_TRANSITIONFLAGS(!this.transition1)
+    },
+    ...mapMutations([
+      'SET_SINGER',
+      'SET_TRANSITIONFLAGS'
+    ])
   }
 }
 </script>
@@ -88,6 +103,8 @@ export default {
   position: fixed;
   top: 88px;
   bottom: 0;
-  width: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
 }
 </style>

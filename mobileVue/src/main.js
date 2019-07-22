@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import VueLazyload from 'vue-lazyload'
 import '@/common/scss/index.scss'
+import store from './store/index.js'
 
 Vue.config.productionTip = false
 Vue.use(VueLazyload, {
@@ -15,6 +16,7 @@ Vue.use(VueLazyload, {
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

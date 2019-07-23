@@ -1,6 +1,6 @@
 <template>
 <transition name="slide">
-<music-list v-if="transition1" :bgImg="bgImg" :title="title"></music-list>
+<music-list v-if="transition1" :bgImg="bgImg" :title="title" :song="song"></music-list>
 </transition>
 </template>
 
@@ -31,7 +31,6 @@ export default {
     }
   },
   created () {
-    console.log(this.singer)
     this._getSingerDetail(this.singer.singer_mid)
   },
   methods: {
@@ -42,17 +41,25 @@ export default {
       }
       getSingerDetail(singerId).then(res => {
         let data = res.data.singer.data.songlist
-        console.log(data)
-        this.song = data
+        this.song = this._normalSongList(data)
+        console.log(this.song)
       })
+    },
+    _normalSongList (list) {
+      let ret = []
+      let singerList = ''
+      list.forEach(item => {
+        if (item.singer.length > 1) {
+          item.singer.forEach(items => {
+            singerList += '/' + items.name
+          })
+        } else {
+          singerList = item.singer[0].name
+        }
+        ret.push({'id': item.id, 'songName': item.name, 'mid': item.mid, 'singerName': singerList})
+      })
+      return ret
     }
-    // _normalSongList (list) {
-    //   let ret = []
-    //   list.forEach(item => {
-    //     // new Song(item.id, item.mid, item.singer[0].name, item.album.name, item.interval, item.)
-
-    //   })
-    // }
   }
 }
 </script>

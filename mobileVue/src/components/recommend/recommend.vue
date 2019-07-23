@@ -1,4 +1,5 @@
 <template>
+<!-- scroll完成结构， div包括scroll div设置为fixed, left:0,right:0, top:0, bottom:0, scroll设置为height 100%，overflow:hidden -->
   <div class="recommend" ref="recommend">
     <scroll class="recommend-content" ref="scroll" :data="hotSongList" v-if="hotSongList.length">
       <div>

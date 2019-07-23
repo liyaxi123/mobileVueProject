@@ -6,13 +6,13 @@
   <!-- 歌手名称 -->
   <h1 class="title">{{title}}</h1>
   <!-- 背景图片 -->
-  <div class="bg-image" :style="bgStyle">
+  <div class="bg-image" :style="bgStyle" ref="bgImage">
     <div class="filter" ref="filter"></div>
   </div>
   <div class="bg-layer" ref="layer"></div>
-  <scroll>
-    <div class="song-list-wrapper">
-      <song-list></song-list>
+  <scroll class="list" ref="list" :data="song" @scroll="scroll" :listenScroll="listenScroll">
+    <div class="song-list-wrapper" ref="songListWrapper"> 
+      <song-list :data="song"></song-list>
     </div>
   </scroll>
 </div>
@@ -21,8 +21,22 @@
 <script>
 import scroll from '@/base/scroll/scroll.vue'
 import songList from '@/base/songList/songList.vue'
+const SCROLL_TOP = 40
 export default {
+  data () {
+    return {
+      scrollY: 0
+    }
+  },
+  mounted () {
+    let imgHight = this.$refs.bgImage.clientHeight
+    this.$refs.list.$el.style.top = `${imgHight}px`
+  },
   props: {
+    song: {
+      type: Array,
+      default: () => []
+    },
     bgImg: {
       type: String,
       default: ''
@@ -30,6 +44,12 @@ export default {
     title: {
       type: String,
       default: ''
+    }
+  },
+  methods: {
+    scroll (opt) {
+      // -200
+      this.scrollY = opt.y
     }
   },
   components: {
@@ -40,6 +60,16 @@ export default {
     bgStyle () {
       return `background-image: url(${this.bgImg})`
     }
+  },
+  watch: {
+    scrollY (newValue) {
+      if (this.imgHight + newValue <= this.SCROLL_TOP) {
+        this.$refs.songListWrapper.$el.style.top = `${this.SCROLL_TOP}px`
+      }
+    }
+  },
+  created () {
+    this.listenScroll = true
   }
 }
 </script>
@@ -84,6 +114,17 @@ export default {
     padding-top: 70%;
     background-size: auto;
     transform-origin: top;
+  }
+  .list {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: $color-background;
+    .song-list-wrapper {
+      background: $color-background;
+      position: fixed;
+      width: 100%;
+    }
   }
 }
 </style>

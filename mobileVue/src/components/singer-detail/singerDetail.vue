@@ -1,12 +1,12 @@
 <template>
-<transition name="slide">
-<music-list v-if="transition1" :bgImg="bgImg" :title="title" :song="song"></music-list>
+<transition name="slideTest">
+  <music-list :bgImg="bgImg" :title="title" :song="song"></music-list>
 </transition>
 </template>
 
 <script>
 import MusicList from '@/components/music-list/musicList.vue'
-import { getSingerDetail, getVkey } from '@/api/singer.js'
+import { getSingerDetail } from '@/api/singer.js'
 import { mapGetters } from 'vuex'
 // import { Song } from '@/common/js/song.js'
 export default {
@@ -24,13 +24,14 @@ export default {
       'transition1'
     ]),
     bgImg () {
-      return this.singer.singer_pic
+      return `//y.gtimg.cn/music/photo_new/T001R300x300M000${this.singer.singer_mid}.jpg?max_age=2592000`
     },
     title () {
       return this.singer.singer_name
     }
   },
   created () {
+    // console.log(this.singer)
     this._getSingerDetail(this.singer.singer_mid)
   },
   methods: {
@@ -65,10 +66,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.slide-enter-active, .slide-leave-active{
-   transition: all  .3s
+.slideTest-enter-active, .slideTest-leave-active{
+   transition: all  2s
 }
-.slide-enter,.slide-leave-to {
-  transform: translate3d(100%, 0, 0)
+.slideTest-enter,.slideTest-leave-to {
+  transform: translate3d(100%, 0, 0) !important
 }
 </style>

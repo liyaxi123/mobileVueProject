@@ -26,6 +26,7 @@ export default {
 @import '@/common/scss/variable.scss';
 @import '@/common/scss/mixin.scss';
   .song-list {
+    position: relative;
     .item {
       height: 60px;
       font-size: $font-size-medium;

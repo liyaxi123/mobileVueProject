@@ -10,7 +10,7 @@
     <div class="filter" ref="filter"></div>
   </div>
   <div class="bg-layer" ref="layer"></div>
-  <scroll class="list" ref="list" :data="song" @scroll="scroll" :listenScroll="listenScroll">
+  <scroll :data="song" @scroll="scroll" :listenScroll="listenScroll" class="list" ref="list" :probe-type="probeType">
     <div class="song-list-wrapper" ref="songListWrapper"> 
       <song-list :data="song"></song-list>
     </div>
@@ -29,8 +29,8 @@ export default {
     }
   },
   mounted () {
-    let imgHight = this.$refs.bgImage.clientHeight
-    this.$refs.list.$el.style.top = `${imgHight}px`
+    this.imgHight = this.$refs.bgImage.clientHeight
+    this.$refs.list.$el.style.top = `${this.imgHight}px`
   },
   props: {
     song: {
@@ -63,13 +63,14 @@ export default {
   },
   watch: {
     scrollY (newValue) {
-      if (this.imgHight + newValue <= this.SCROLL_TOP) {
-        this.$refs.songListWrapper.$el.style.top = `${this.SCROLL_TOP}px`
-      }
+      console.log(this.imgHight + newValue)
+      console.log(SCROLL_TOP)
+      this.$refs.layer.style['transform']= `translate3d(0, ${newValue}px, 0)`
     }
   },
   created () {
     this.listenScroll = true
+    this.probeType = 3
   }
 }
 </script>
@@ -121,10 +122,12 @@ export default {
     width: 100%;
     background: $color-background;
     .song-list-wrapper {
-      background: $color-background;
-      position: fixed;
-      width: 100%;
     }
+  }
+  .bg-layer {
+    position: relative;
+    height: 100%;
+    background: $color-background;
   }
 }
 </style>

@@ -7,13 +7,19 @@
   <h1 class="title">{{title}}</h1>
   <!-- 背景图片 -->
   <div class="bg-image" :style="bgStyle" ref="bgImage">
+    <div class="play-wrapper">
+      <div ref="playBtn" class="play">
+        <i class="icon-play"></i>
+        <span class="text">随机播放全部</span>
+      </div>
+    </div>
     <div class="filter" ref="filter"></div>
   </div>
   <!-- 这个layer层是为了实现功能 -->
   <div class="bg-layer" ref="layer"></div>
   <scroll :data="song" @scroll="scroll" :listenScroll="listenScroll" class="list" ref="list" :probe-type="probeType">
     <div class="song-list-wrapper" ref="songListWrapper">
-      <song-list :data="song"></song-list>
+      <song-list :data="song" @selcetItem="selectItem"></song-list>
     </div>
   </scroll>
   <div class="loading" v-show="!song.length">
@@ -27,6 +33,8 @@ import scroll from '@/base/scroll/scroll.vue'
 import songList from '@/base/songList/songList.vue'
 import loading from '@/base/loading/loading.vue'
 import { mapMutations } from 'vuex'
+import { addPrefix } from '@/common/js/dom.js'
+const transform = addPrefix('transform')
 const SCROLL_TOP = 50
 export default {
   data () {
@@ -53,6 +61,9 @@ export default {
     }
   },
   methods: {
+    selectItem () {
+      
+    },
     scroll (opt) {
       // -200
       this.scrollY = opt.y
@@ -80,17 +91,18 @@ export default {
       let transY = this.imgHight - SCROLL_TOP // 可以滚动的最大距离
       let scale = 1
       if (-newValue < transY) {
-        console.log(-newValue < transY)
-        this.$refs.layer.style['transform'] = `translate3d(0, ${newValue}px, 0)`
+        this.$refs.layer.style[transform] = `translate3d(0, ${newValue}px, 0)`
         // 当这招到达最大值后改变图片的高度
         this.$refs.bgImage.style.paddingTop = '70%'
         this.$refs.bgImage.style.height = 0
         this.$refs.bgImage.style.zIndex = 0
+        this.$refs.playBtn.style.display = ''
       } else {
         this.$refs.bgImage.style.paddingTop = `${0}px`
         this.$refs.bgImage.style.height = `${SCROLL_TOP}px`
         this.$refs.bgImage.style.zIndex = 39
         this.$refs.list.$el.style.zIndex = 35
+        this.$refs.playBtn.style.display = 'none'
       }
       if (newValue > 0) {
         scale = (1 + (Math.abs(newValue / this.imgHight)))
@@ -146,6 +158,34 @@ export default {
     background-size: cover;
     transform-origin: top;
     z-index: 30;
+    .play-wrapper {
+      position: absolute;
+      bottom: 20px;
+      z-index: 50;
+      width: 100%;
+      .play {
+        box-sizing: border-box; // 包括padding和border
+        width: 135px;
+        padding: 7px 0;
+        margin: 0 auto;
+        text-align: center;
+        border: 1px solid $color-theme;
+        color: $color-theme;
+        border-radius: 100px;
+        font-size: 0;
+        .icon-play {
+          display: inline-block;
+          vertical-align: middle;
+          margin-right: 6px;
+          font-size: $font-size-medium-x;
+        }
+        .text {
+          display: inline-block;
+          vertical-align: middle;
+          font-size: $font-size-small;
+        }
+      }
+    }
   }
   .list {
     position: fixed;

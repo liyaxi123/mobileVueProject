@@ -34,7 +34,7 @@ let vender = (() => {
   }
   for (let k in transformName) {
     if (els[transformName[k]] !== undefined) {
-      return transformName[k]
+      return k
     }
   }
   return false
@@ -43,5 +43,10 @@ let vender = (() => {
 export function addPrefix (style) {
   if (vender === false) {
     return false
+  }
+  if (vender === 'standard') {
+    return style
+  } else {
+    return `${vender}${style.charAt(0).toUpperCase()}${style.substr(1)}`
   }
 }

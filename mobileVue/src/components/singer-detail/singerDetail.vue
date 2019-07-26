@@ -31,7 +31,7 @@ export default {
     }
   },
   created () {
-    // console.log(this.singer)
+    console.log(this.singer)
     this._getSingerDetail(this.singer.singer_mid)
   },
   methods: {
@@ -43,7 +43,6 @@ export default {
       getSingerDetail(singerId).then(res => {
         let data = res.data.singer.data.songlist
         this.song = this._normalSongList(data)
-        console.log(this.song)
       })
     },
     _normalSongList (list) {
@@ -57,7 +56,8 @@ export default {
         } else {
           singerList = item.singer[0].name
         }
-        ret.push({'id': item.id, 'songName': item.name, 'mid': item.mid, 'singerName': singerList})
+        singerList = singerList[0] === '/' ? singerList.substr(1) : singerList
+        ret.push({'id': item.id, 'songName': item.name, 'mid': item.mid, 'singerName': singerList, 'songImg': item.singer[0].mid, 'albumImg': item.album.mid})
       })
       return ret
     }

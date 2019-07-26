@@ -19,7 +19,7 @@
   <div class="bg-layer" ref="layer"></div>
   <scroll :data="song" @scroll="scroll" :listenScroll="listenScroll" class="list" ref="list" :probe-type="probeType">
     <div class="song-list-wrapper" ref="songListWrapper">
-      <song-list :data="song" @selcetItem="selectItem"></song-list>
+      <song-list :data="song" @selectItem="selectItem"></song-list>
     </div>
   </scroll>
   <div class="loading" v-show="!song.length">
@@ -32,7 +32,7 @@
 import scroll from '@/base/scroll/scroll.vue'
 import songList from '@/base/songList/songList.vue'
 import loading from '@/base/loading/loading.vue'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapActions } from 'vuex'
 import { addPrefix } from '@/common/js/dom.js'
 const transform = addPrefix('transform')
 const SCROLL_TOP = 50
@@ -61,8 +61,11 @@ export default {
     }
   },
   methods: {
-    selectItem () {
-      
+    selectItem (item, index) {
+      this.selectPlay({
+        list: this.song,
+        index
+      })
     },
     scroll (opt) {
       // -200
@@ -74,6 +77,9 @@ export default {
     },
     ...mapMutations([
       'SET_TRANSITIONFLAGS'
+    ]),
+    ...mapActions([
+      'selectPlay'
     ])
   },
   components: {
@@ -131,7 +137,7 @@ export default {
   .back {
     position: absolute;
     top: 0;
-    left: 6px;
+    left: 0px;
     z-index: 50;
     .icon-back {
       display: block;

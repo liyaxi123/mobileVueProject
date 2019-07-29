@@ -42,6 +42,13 @@ module.exports = {
         pathRewrite: {
           '^/api/getSingerDetail': ''
         }
+      },
+      '/api/getVkey': {
+        target: 'https://u.y.qq.com/cgi-bin/musicu.fcg',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api/getVkey': ''
+        }
       }
     },
     // Various Dev Server settings

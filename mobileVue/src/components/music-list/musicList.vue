@@ -34,6 +34,7 @@ import songList from '@/base/songList/songList.vue'
 import loading from '@/base/loading/loading.vue'
 import { mapMutations, mapActions } from 'vuex'
 import { addPrefix } from '@/common/js/dom.js'
+import { getVkey } from '@/api/singer.js'
 const transform = addPrefix('transform')
 const SCROLL_TOP = 50
 export default {
@@ -66,6 +67,10 @@ export default {
         list: this.song,
         index
       })
+      getVkey(item.mid).then(res => {
+        console.log(res.data.req.data.vkey)
+        this.SET_PLAYSRC('http://113.113.69.163/amobile.music.tc.qq.com/C400004dFFPd4JNv8q.m4a?guid=2722403296&vkey=599FF4A421A23EDF720DBA75BB4B40435C044298BD2E2ED3F11A3FB5AF5B595453DF64AB0872E9E8D77DECB0E370BB4FFEDF279D2C633B41&uin=561&fromtag=66')
+      })
     },
     scroll (opt) {
       // -200
@@ -76,7 +81,8 @@ export default {
       // this.SET_TRANSITIONFLAGS(false)
     },
     ...mapMutations([
-      'SET_TRANSITIONFLAGS'
+      'SET_TRANSITIONFLAGS',
+      'SET_PLAYSRC'
     ]),
     ...mapActions([
       'selectPlay'

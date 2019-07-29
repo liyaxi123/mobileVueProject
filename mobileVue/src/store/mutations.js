@@ -24,6 +24,9 @@ const mutations = {
   },
   [types.SET_CURRENT_INDEX] (state, index) {
     state.currentIndex = index
+  },
+  [types.SET_PLAYSRC] (state, data) {
+    state.playSrc = data
   }
 }
 

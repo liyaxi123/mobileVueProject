@@ -1,13 +1,13 @@
 <template>
 <!-- play这个组件不受其他组件的影响所以放于app.vue下 -->
-<div class="player" v-show="playlist.length">
+<div class="player" v-show="playlist.length > 0">
   <transition name="normal"
-              @enter="enter"
-              @after-enter="afterEnter"
-              @leave="leave"
-              @after-leave="afterLeave"
+              v-on:enter="enter"
+              v-on:after-enter="afterEnter"
+              v-on:leave="leave"
+              v-on:after-leave="afterLeave"
   >
-    <div class="normal-player" v-show="fullScreen" key="full">
+    <div class="normal-player" key="full" v-show="fullScreen">
       <div class="background">
         <img width="100%" height="100%" :src="bgImg">
       </div>
@@ -74,8 +74,10 @@
       <div class="control">
         <i class="icon-playlist"></i>
       </div>
+      <div>{{playSrc}}</div>
     </div>
   </transition>
+  <audio :src="src" autoplay></audio>
 </div>
 </template>
 
@@ -88,7 +90,8 @@ export default {
     ...mapGetters([
       'fullScreen',
       'playlist',
-      'currentSong'
+      'currentSong',
+      'playSrc'
     ]),
     bgImg () {
       return `//y.gtimg.cn/music/photo_new/T001R300x300M000${this.currentSong.songImg}.jpg?max_age=2592000`
@@ -97,52 +100,61 @@ export default {
       return `//y.gtimg.cn/music/photo_new/T002R300x300M000${this.currentSong.albumImg}.jpg?max_age=2592000`
     }
   },
+  data () {
+    return {
+      src: this.playSrc.substr(1, this.playSrc.length - 2)
+    }
+  },
   components: {
     scroll
+  },
+  mounted () {
+    console.log(this.playSrc)
   },
   methods: {
     scaleSmall () {
       this.SET_FULL_SCREEN(false)
+      console.log(this.currentSong)
     },
     ...mapMutations([
       'SET_FULL_SCREEN'
     ]),
-    enter (el, done) {
+    enter (el, done) { // 这个其实是设置进入时的起始状态，然后在规定的时间那日运动到真正的位置
       const { x, y, scale } = this._getPositionAndScale()
       let animation = {
         0: {
-          transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`
+          transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})` // 起始状态在左下角，并且缩放
         },
         60: {
-          transform: `translate3d(0, 0, 0) scale(1.1)`
+          transform: `translate3d(0, 0, 0) scale(1.1)` // 60%的时候，回到自己本身的位置，并且放大
         },
         100: {
-          transform: `translate3d(0, 0, 0) scale(1)`
+          transform: `translate3d(0, 0, 0) scale(1)` // 100%的时候再进行一次缩放
         }
       }
       animations.registerAnimation({
         name: 'move',
         animation,
         presets: {
-          during: 3000,
+          duration: 3000,
           easing: 'linear'
         }
       })
       animations.runAnimation(this.$refs.cdWrapper, 'move', done)
     },
     afterEnter () {
-      animations.unregisterAnimation('move')
+      animations.unregisterAnimation('move') // 取消动画
       this.$refs.cdWrapper.style.animation = ''
     },
-    leave (el, done) {
-      // this.$refs.cdWrapper.style.transform = 'all 3s'
-      // const { x, y, scale } = this._getPositionAndScale()
-      // this.$refs.cdWrapper.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
-      // this.$refs.cdWrapper.addEventListener('transitionend', done)
+    leave (el, done) { // leave事件代表最终要去往的位置，也就是最终离开的位置
+      this.$refs.cdWrapper.style.transition = 'all 3s'
+      const { x, y, scale } = this._getPositionAndScale()
+      this.$refs.cdWrapper.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
+      this.$refs.cdWrapper.addEventListener('transitionend', done) // transitionend是一个事件类型
     },
     afterLeave () {
-      // this.$refs.cdWrapper.style.transform = ''
-      // this.$refs.cdWrapper.style.transtion = ''
+      this.$refs.cdWrapper.style.transform = ''
+      this.$refs.cdWrapper.style.transition = ''
     },
     _getPositionAndScale () {
       const targetWidth = 40 // 小图片宽度
@@ -150,9 +162,9 @@ export default {
       const paddingBottom = 12
       const paddingTop = 96
       const width = window.innerWidth * 0.8
-      const scale = targetWidth / width
-      const x = -(window.innerWidth / 2 - paddingLeft)
-      const y = window.innerHeight - paddingTop - width / 2 - paddingBottom
+      const scale = targetWidth / width // 小于零
+      const x = -(window.innerWidth / 2 - paddingLeft - targetWidth / 2)
+      const y = window.innerHeight - paddingTop - width / 2 - paddingBottom - targetWidth / 2
       return {
         x,
         y,
@@ -175,6 +187,28 @@ export default {
     right: 0;
     z-index: 150;
     background: $color-background;
+     &.normal-enter {
+      .bottom {
+        transform: translateY(100px);
+      }
+      .top {
+        transform: translate3d(0, -100px, 0);
+      }
+    }
+    &.normal-leave-to {
+        .bottom {
+        transform: translateY(100px);
+      }
+      .top {
+        transform: translate3d(0, -100px, 0);
+      }
+    }
+    &.normal-enter-active, &.normal-leave-active {
+      transition: all 3s;
+    .top,.bottom {
+      transition: all 3s cubic-bezier(0.86, 0.18, 0.82, 1.32)
+    }
+  }
     .background {
       position: absolute;
       left: 0;
@@ -337,21 +371,6 @@ export default {
       .icon-mini {
         font-size: 32px;
       }
-    }
-  }
-  .normal-enter-active, .normal-leave-active {
-    transition: all 3s;
-    .top, .bottom {
-      transition: all 3s cubic-bezier(0.86, 0.18, 0.82, 1.32)
-    }
-  }
-  .normal-enter, .normal-leave {
-    opacity: 0;
-    .top {
-      transform: translate3d(0, -100px, 0)
-    }
-    .bottom {
-      transform: translate3d(0, 100px, 0)
     }
   }
 }

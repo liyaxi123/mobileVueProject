@@ -1,58 +1,88 @@
 <template>
 <!-- play这个组件不受其他组件的影响所以放于app.vue下 -->
 <div class="player" v-show="playlist.length">
-  <div class="normal-player" v-show="fullScreen">
-    <div class="background">
-      <img width="100%" height="100%" :src="bgImg">
-    </div>
-    <div class="top">
-      <div class="back" @click="scaleSmall">
-        <i class="icon-back"></i>
+  <transition name="normal"
+              @enter="enter"
+              @after-enter="afterEnter"
+              @leave="leave"
+              @after-leave="afterLeave"
+  >
+    <div class="normal-player" v-show="fullScreen" key="full">
+      <div class="background">
+        <img width="100%" height="100%" :src="bgImg">
       </div>
-      <h1 class="title">{{currentSong.songName}}</h1>
-      <h2 class="subtitle">{{currentSong.singerName}}</h2>
-    </div>
-    <div class="middle">
-      <div class="middle-l" ref="middleL">
-        <div class="cd-wrapper" ref="cdWrapper">
-          <div class="cd">
-            <img class="image" :src="albumImg">
+      <div class="top">
+        <div class="back" @click="scaleSmall">
+          <i class="icon-back"></i>
+        </div>
+        <h1 class="title">{{currentSong.songName}}</h1>
+        <h2 class="subtitle">{{currentSong.singerName}}</h2>
+      </div>
+      <div class="middle">
+        <div class="middle-l" ref="middleL">
+          <div class="cd-wrapper" ref="cdWrapper">
+            <div class="cd">
+              <img class="image" :src="albumImg">
+            </div>
+          </div>
+          <div class="playing-lyric-wrapper">
+            <div class="playing-lyric"></div>
           </div>
         </div>
-        <div class="playing-lyric-wrapper">
-          <div class="playing-lyric"></div>
-        </div>
+        <scroll class="middle-r" ref="lyricList">
+          <div class="lyric-wrapper">
+            <div>
+              <p ref="lyricLine" class="text"></p>
+            </div>
+          </div>
+        </scroll>
       </div>
-      <scroll class="middle-r" ref="lyricList">
-        <div class="lyric-wrapper">
-          <div>
-            <p ref="lyricLine" class="text"></p>
+      <div class="bottom">
+        <div class="dot-wrapper"></div>
+        <div class="operators">
+          <div class="icon i-left">
+            <i></i>
+          </div>
+          <div class="icon i-left">
+            <i class="icon-prev"></i>
+          </div>
+          <div class="icon i-center">
+            <i></i>
+          </div>
+          <div class="icon icon-right">
+            <i class="icon-next"></i>
+          </div>
+          <div class="icon i-right">
+            <i class="icon"></i>
           </div>
         </div>
-      </scroll>
+      </div>
     </div>
-    <div class="bottom">
-      <div class="dot-wrapper"></div>
+  </transition>
+  <transition name="mini" key="small">
+    <div class="mini-player" v-show="!fullScreen">
+      <div class="icon">
+        <img width="40" height="40" :src="albumImg">
+      </div>
+      <div class="text">
+        <h2 class="name">{{currentSong.songName}}</h2>
+        <p class="desc">{{currentSong.singerName}}</p>
+      </div>
+      <div class="control">
+        <i class="icon-play-mini icon-mini"></i>
+      </div>
+      <div class="control">
+        <i class="icon-playlist"></i>
+      </div>
     </div>
-  </div>
-  <div class="mini-player" v-show="!fullScreen">
-    <div class="icon">
-      <img width="40" height="40" :src="albumImg">
-    </div>
-    <div class="text">
-      <h2 class="name">{{currentSong.songName}}</h2>
-      <p class="desc">{{currentSong.singerName}}</p>
-    </div>
-    <div class="control">
-      <i class="icon-playlist"></i>
-    </div>
-  </div>
+  </transition>
 </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import scroll from '@/base/scroll/scroll.vue'
+import animations from 'create-keyframe-animation'
 export default {
   computed: {
     ...mapGetters([
@@ -76,7 +106,59 @@ export default {
     },
     ...mapMutations([
       'SET_FULL_SCREEN'
-    ])
+    ]),
+    enter (el, done) {
+      const { x, y, scale } = this._getPositionAndScale()
+      let animation = {
+        0: {
+          transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`
+        },
+        60: {
+          transform: `translate3d(0, 0, 0) scale(1.1)`
+        },
+        100: {
+          transform: `translate3d(0, 0, 0) scale(1)`
+        }
+      }
+      animations.registerAnimation({
+        name: 'move',
+        animation,
+        presets: {
+          during: 3000,
+          easing: 'linear'
+        }
+      })
+      animations.runAnimation(this.$refs.cdWrapper, 'move', done)
+    },
+    afterEnter () {
+      animations.unregisterAnimation('move')
+      this.$refs.cdWrapper.style.animation = ''
+    },
+    leave (el, done) {
+      // this.$refs.cdWrapper.style.transform = 'all 3s'
+      // const { x, y, scale } = this._getPositionAndScale()
+      // this.$refs.cdWrapper.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
+      // this.$refs.cdWrapper.addEventListener('transitionend', done)
+    },
+    afterLeave () {
+      // this.$refs.cdWrapper.style.transform = ''
+      // this.$refs.cdWrapper.style.transtion = ''
+    },
+    _getPositionAndScale () {
+      const targetWidth = 40 // 小图片宽度
+      const paddingLeft = 13
+      const paddingBottom = 12
+      const paddingTop = 96
+      const width = window.innerWidth * 0.8
+      const scale = targetWidth / width
+      const x = -(window.innerWidth / 2 - paddingLeft)
+      const y = window.innerHeight - paddingTop - width / 2 - paddingBottom
+      return {
+        x,
+        y,
+        scale
+      }
+    }
   }
 }
 </script>
@@ -100,7 +182,8 @@ export default {
       width: 100%;
       height: 100%;
       z-index: -1;
-      opacity: 0.6
+      opacity: 0.6;
+      filter: blur(20px)
     }
     .top {
       position: relative;
@@ -136,7 +219,7 @@ export default {
     }
     .middle {
       position: fixed;
-      top: 55px;
+      top: 60px;
       bottom: 170px;
       white-space: nowrap;
       width: 100%;
@@ -161,13 +244,46 @@ export default {
             border: 10px solid rgba(255, 255, 255, 0.1);
             .image {
               position: absolute;
-              width: 100%;
-              height: 100%;
-              left : 0;
-              top: 0;
+              width: 90%;
+              height: 90%;
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -50%);
               border-radius: 50%;
             }
           }
+        }
+      }
+    }
+    .bottom {
+      position: absolute;
+      bottom: 50px;
+      width: 100%;
+      .operators {
+        display: flex;
+        align-content: center;
+        .icon {
+          flex: 1;
+          color: $color-theme;
+          &.disable {
+            color: $color-theme-d;
+          }
+          i {
+            font-size: 30px;
+          }
+        }
+        .i-left {
+          text-align: right;
+        }
+        .i-center {
+          padding: 0 20px;
+          text-align: center;
+          i {
+            font-size: 40px
+          }
+        }
+        .i-right {
+          text-align: left;
         }
       }
     }
@@ -213,10 +329,29 @@ export default {
       flex: 0 0 30px;
       width: 30px;
       padding: 0 10px;
+      text-align: center;
       .icon-play-mini, .icon-pause-mini, .icon-playlist {
         font-size: 20px;
         color: $color-theme-d;
       }
+      .icon-mini {
+        font-size: 32px;
+      }
+    }
+  }
+  .normal-enter-active, .normal-leave-active {
+    transition: all 3s;
+    .top, .bottom {
+      transition: all 3s cubic-bezier(0.86, 0.18, 0.82, 1.32)
+    }
+  }
+  .normal-enter, .normal-leave {
+    opacity: 0;
+    .top {
+      transform: translate3d(0, -100px, 0)
+    }
+    .bottom {
+      transform: translate3d(0, 100px, 0)
     }
   }
 }

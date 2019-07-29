@@ -69,7 +69,7 @@ export default {
 .slideTest-enter-active, .slideTest-leave-active{
    transition: all  2s
 }
-.slideTest-enter,.slideTest-leave-to {
-  transform: translate3d(100%, 0, 0) !important
+.slideTest-enter, .slideTest-leave-to {
+  transform: translateX(100%)
 }
 </style>

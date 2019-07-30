@@ -39,17 +39,24 @@
       </div>
       <div class="bottom">
         <div class="dot-wrapper"></div>
+        <div class="progress-wrapper">
+          <span class="time time-l">{{formatData(currentTime)}}</span>
+          <div class="progress-bar-wrapper">
+            <progress-bar @percentChange="percentChange" :precent="percent"></progress-bar>
+          </div>
+          <span class="time time-r">{{formatData(currentSong.interval)}}</span>
+        </div>
         <div class="operators">
           <div class="icon i-left">
             <i></i>
           </div>
-          <div class="icon i-left">
+          <div class="icon i-left" @click="prev">
             <i class="icon-prev"></i>
           </div>
           <div class="icon i-center">
             <i :class="playIcon" @click="togglePlaying"></i>
           </div>
-          <div class="icon icon-right">
+          <div class="icon icon-right" @click="next">
             <i class="icon-next"></i>
           </div>
           <div class="icon i-right">
@@ -62,7 +69,7 @@
   <transition name="mini" key="small">
     <div class="mini-player" v-show="!fullScreen" @click="open">
       <div class="icon">
-        <img width="40" height="40" :src="albumImg">
+        <img width="40" height="40" :src="albumImg" :class="cdCircle">
       </div>
       <div class="text">
         <h2 class="name">{{currentSong.songName}}</h2>
@@ -76,7 +83,7 @@
       </div>
     </div>
   </transition>
-  <audio :src="playSrc" ref="audio"></audio>
+  <audio :src="playSrc" ref="audio" @timeupdate="updateTime"></audio>
 </div>
 </template>
 
@@ -84,6 +91,8 @@
 import { mapGetters, mapMutations } from 'vuex'
 import scroll from '@/base/scroll/scroll.vue'
 import animations from 'create-keyframe-animation'
+import { getVkey } from '@/api/singer.js'
+import progressBar from '@/base/progressBar/progressBar.vue'
 export default {
   computed: {
     playIcon () {
@@ -93,14 +102,18 @@ export default {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
     },
     cdCircle () {
-      return this.playing ? 'goRound' : ''
+      return this.playing ? 'goRound' : 'goRound pause'
+    },
+    percent () {
+      return this.currentTime / this.currentSong.interval
     },
     ...mapGetters([
       'fullScreen',
       'playlist',
       'currentSong',
       'playSrc',
-      'playing'
+      'playing',
+      'currentIndex'
     ]),
     bgImg () {
       return `//y.gtimg.cn/music/photo_new/T001R300x300M000${this.currentSong.songImg}.jpg?max_age=2592000`
@@ -111,7 +124,8 @@ export default {
   },
   data () {
     return {
-      src: ''
+      src: '',
+      currentTime: 0
     }
   },
   watch: {
@@ -121,11 +135,14 @@ export default {
       })
     },
     playing (newValue) {
-      newValue ? this.$refs.audio.play() : this.$refs.audio.pause()
+        newValue ? this.$nextTick(() => {
+          this.$refs.audio.play()
+        }) : this.$refs.audio.pause()
     }
   },
   components: {
-    scroll
+    scroll,
+    progressBar
   },
   mounted () {
   },
@@ -139,9 +156,48 @@ export default {
     open () {
       this.SET_FULL_SCREEN(true)
     },
+    prev () {
+      if (!this.playing) {
+        this.SET_PLAYING_STATE(true)
+      }
+      let index = this.currentIndex - 1
+      if (index < 0) {
+        index = this.playlist.length - 1
+      }
+      getVkey(this.playlist[index].mid).then(res => {
+        console.log(res)
+        let content = res.data.req_0.data.midurlinfo[0].purl
+        let ht = res.data.req_0.data.sip[0]
+        this.SET_PLAYSRC(`${ht}${content}`)
+        this.SET_CURRENT_INDEX(index)
+      })
+    },
+    percentChange (val) {
+      this.$refs.audio.currentTime = this.currentSong.interval * val
+    },
+    next () {
+      if (!this.playing) {
+        this.SET_PLAYING_STATE(true)
+      }
+      let index = this.currentIndex + 1
+      if (index > this.playlist.length - 1) {
+        index = 0
+      }
+      getVkey(this.playlist[index].mid).then(res => {
+        let content = res.data.req_0.data.midurlinfo[0].purl
+        let ht = res.data.req_0.data.sip[0]
+        this.SET_PLAYSRC(`${ht}${content}`)
+        this.SET_CURRENT_INDEX(index)
+      })
+    },
+    updateTime (e) {
+      this.currentTime = e.target.currentTime
+    },
     ...mapMutations([
       'SET_FULL_SCREEN',
-      'SET_PLAYING_STATE'
+      'SET_PLAYING_STATE',
+      'SET_PLAYSRC',
+      'SET_CURRENT_INDEX'
     ]),
     enter (el, done) { // 这个其实是设置进入时的起始状态，然后在规定的时间那日运动到真正的位置
       const { x, y, scale } = this._getPositionAndScale()
@@ -194,6 +250,14 @@ export default {
         y,
         scale
       }
+    },
+    formatData (data) {
+      let min = Math.floor(data / 60)
+      let second = Math.floor(data % 60)
+      if (second < 10) {
+        second = '0' + second
+      }
+      return `${min}:${second}`
     }
   }
 }
@@ -277,7 +341,7 @@ export default {
     }
     .middle {
       position: fixed;
-      top: 60px;
+      top: 70px;
       bottom: 170px;
       white-space: nowrap;
       width: 100%;
@@ -294,22 +358,18 @@ export default {
           top: 0;
           width: 80%;
           height: 100%;
-          .goRound {
-            -webkit-animation:cdPeople 5s linear infinite;
-          }
-           @-webkit-keyframes cdPeople {
-            0% {transform: rotate(0deg);}
-            25% {transform: ratate(90deg);}
-            50% {transform: ratate(180deg)}
-            75% {transform: ratate(270deg);}
-            100% {transform: ratate(360%);}
-           }
           .cd {
             width: 100%;
             height: 100%;
             box-sizing: border-box;
             border-radius: 50%;
             border: 10px solid rgba(255, 255, 255, 0.1);
+            &.goRound {
+            animation:cdPeople 20s linear infinite;
+          }
+          &.pause {
+            animation-play-state:paused
+          }
             .image {
               position: absolute;
               width: 90%;
@@ -327,6 +387,29 @@ export default {
       position: absolute;
       bottom: 50px;
       width: 100%;
+      .progress-wrapper {
+        display: flex;
+        align-items: center;
+        width: 80%;
+        margin: 0 auto;
+        padding: 10px 0;
+        .time {
+          color: $color-text;
+          font-size: $font-size-small;
+          flex: 0 0 30px;
+          line-height: 30px;
+          width: 30px;
+          &.time-l {
+            text-align:left;
+          }
+          &.time-r {
+            text-align: right;
+          }
+        }
+        .progress-bar-wrapper {
+          flex: 1
+        }
+      }
       .operators {
         display: flex;
         align-items: center;
@@ -372,6 +455,12 @@ export default {
       padding: 0 5px 0 8px;
       img {
         border-radius: 50%;
+        &.goRound {
+          animation:cdPeople 20s linear infinite;
+        }
+        &.pause {
+          animation-play-state:paused
+        }
       }
     }
     .text {
@@ -406,6 +495,13 @@ export default {
         font-size: 32px;
       }
     }
+  }
+  @keyframes cdPeople {
+    0% {transform: rotate(0deg) scale(1);}
+    25% {transform: rotate(90deg) scale(0.5);}
+    50% {transform: rotate(180deg) scale(0.3)}
+    75% {transform: rotate(270deg) scale(0.5);}
+    100% {transform: rotate(360deg) scale(1);}
   }
 }
 </style>

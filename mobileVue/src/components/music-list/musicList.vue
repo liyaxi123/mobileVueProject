@@ -71,7 +71,6 @@ export default {
         let content = res.data.req_0.data.midurlinfo[0].purl
         let ht = res.data.req_0.data.sip[0]
         this.SET_PLAYSRC(`${ht}${content}`)
-      }).then(() => {
       })
     },
     scroll (opt) {

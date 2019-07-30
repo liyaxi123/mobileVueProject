@@ -43,6 +43,7 @@ export default {
       }
       getSingerDetail(singerId).then(res => {
         let data = res.data.singer.data.songlist
+        console.log(res)
         this.song = this._normalSongList(data)
       })
     },
@@ -58,7 +59,7 @@ export default {
           singerList = item.singer[0].name
         }
         singerList = singerList[0] === '/' ? singerList.substr(1) : singerList
-        ret.push({'id': item.id, 'songName': item.name, 'mid': item.mid, 'singerName': singerList, 'songImg': item.singer[0].mid, 'albumImg': item.album.mid})
+        ret.push({'id': item.id, 'songName': item.name, 'mid': item.mid, 'singerName': singerList, 'songImg': item.singer[0].mid, 'albumImg': item.album.mid, 'interval': item.interval})
       })
       return ret
     }

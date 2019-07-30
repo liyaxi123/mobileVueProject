@@ -21,7 +21,7 @@
       <div class="middle">
         <div class="middle-l" ref="middleL">
           <div class="cd-wrapper" ref="cdWrapper">
-            <div class="cd">
+            <div class="cd" :class="cdCircle">
               <img class="image" :src="albumImg">
             </div>
           </div>
@@ -47,7 +47,7 @@
             <i class="icon-prev"></i>
           </div>
           <div class="icon i-center">
-            <i></i>
+            <i :class="playIcon" @click="togglePlaying"></i>
           </div>
           <div class="icon icon-right">
             <i class="icon-next"></i>
@@ -60,7 +60,7 @@
     </div>
   </transition>
   <transition name="mini" key="small">
-    <div class="mini-player" v-show="!fullScreen">
+    <div class="mini-player" v-show="!fullScreen" @click="open">
       <div class="icon">
         <img width="40" height="40" :src="albumImg">
       </div>
@@ -69,15 +69,14 @@
         <p class="desc">{{currentSong.singerName}}</p>
       </div>
       <div class="control">
-        <i class="icon-play-mini icon-mini"></i>
+        <i :class="playMiniIcon" @click.stop="togglePlaying"></i>
       </div>
       <div class="control">
         <i class="icon-playlist"></i>
       </div>
-      <div>{{playSrc}}</div>
     </div>
   </transition>
-  <audio :src="src" autoplay></audio>
+  <audio :src="playSrc" ref="audio"></audio>
 </div>
 </template>
 
@@ -87,11 +86,21 @@ import scroll from '@/base/scroll/scroll.vue'
 import animations from 'create-keyframe-animation'
 export default {
   computed: {
+    playIcon () {
+      return this.playing ? 'icon-pause' : 'icon-play'
+    },
+    playMiniIcon () {
+      return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+    },
+    cdCircle () {
+      return this.playing ? 'goRound' : ''
+    },
     ...mapGetters([
       'fullScreen',
       'playlist',
       'currentSong',
-      'playSrc'
+      'playSrc',
+      'playing'
     ]),
     bgImg () {
       return `//y.gtimg.cn/music/photo_new/T001R300x300M000${this.currentSong.songImg}.jpg?max_age=2592000`
@@ -102,22 +111,37 @@ export default {
   },
   data () {
     return {
-      src: this.playSrc.substr(1, this.playSrc.length - 2)
+      src: ''
+    }
+  },
+  watch: {
+    playSrc (newVAalue) {
+      this.$nextTick(() => { // 这里需要想一下，不加的话不会播放
+        this.$refs.audio.play()
+      })
+    },
+    playing (newValue) {
+      newValue ? this.$refs.audio.play() : this.$refs.audio.pause()
     }
   },
   components: {
     scroll
   },
   mounted () {
-    console.log(this.playSrc)
   },
   methods: {
     scaleSmall () {
       this.SET_FULL_SCREEN(false)
-      console.log(this.currentSong)
+    },
+    togglePlaying () {
+      this.SET_PLAYING_STATE(!this.playing)
+    },
+    open () {
+      this.SET_FULL_SCREEN(true)
     },
     ...mapMutations([
-      'SET_FULL_SCREEN'
+      'SET_FULL_SCREEN',
+      'SET_PLAYING_STATE'
     ]),
     enter (el, done) { // 这个其实是设置进入时的起始状态，然后在规定的时间那日运动到真正的位置
       const { x, y, scale } = this._getPositionAndScale()
@@ -136,7 +160,7 @@ export default {
         name: 'move',
         animation,
         presets: {
-          duration: 3000,
+          duration: 300,
           easing: 'linear'
         }
       })
@@ -147,7 +171,7 @@ export default {
       this.$refs.cdWrapper.style.animation = ''
     },
     leave (el, done) { // leave事件代表最终要去往的位置，也就是最终离开的位置
-      this.$refs.cdWrapper.style.transition = 'all 3s'
+      this.$refs.cdWrapper.style.transition = 'all .3s'
       const { x, y, scale } = this._getPositionAndScale()
       this.$refs.cdWrapper.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
       this.$refs.cdWrapper.addEventListener('transitionend', done) // transitionend是一个事件类型
@@ -204,9 +228,9 @@ export default {
       }
     }
     &.normal-enter-active, &.normal-leave-active {
-      transition: all 3s;
+      transition: all .3s;
     .top,.bottom {
-      transition: all 3s cubic-bezier(0.86, 0.18, 0.82, 1.32)
+      transition: all .3s cubic-bezier(0.86, 0.18, 0.82, 1.32)
     }
   }
     .background {
@@ -270,6 +294,16 @@ export default {
           top: 0;
           width: 80%;
           height: 100%;
+          .goRound {
+            -webkit-animation:cdPeople 5s linear infinite;
+          }
+           @-webkit-keyframes cdPeople {
+            0% {transform: rotate(0deg);}
+            25% {transform: ratate(90deg);}
+            50% {transform: ratate(180deg)}
+            75% {transform: ratate(270deg);}
+            100% {transform: ratate(360%);}
+           }
           .cd {
             width: 100%;
             height: 100%;
@@ -295,7 +329,7 @@ export default {
       width: 100%;
       .operators {
         display: flex;
-        align-content: center;
+        align-items: center;
         .icon {
           flex: 1;
           color: $color-theme;

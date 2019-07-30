@@ -1,9 +1,5 @@
 <template>
-<transition
-            @enter="enter"
-            @beforeEnter="beforeEnter"
-            @afterEnter="afterEnter"
-            @leave="leave"
+<transition name="slide"
 >
   <music-list :bgImg="bgImg" :title="title" :song="song" ref="musicList"></music-list>
 </transition>
@@ -65,33 +61,33 @@ export default {
         ret.push({'id': item.id, 'songName': item.name, 'mid': item.mid, 'singerName': singerList, 'songImg': item.singer[0].mid, 'albumImg': item.album.mid})
       })
       return ret
-    },
-    beforeEnter (el) {
-      this.$refs.musicList.$el.style.transition = 'all 3s'
-      this.$refs.musicList.$el.style.transform = `translate3d(0, 100%, 0)`
-    },
-    enter (el, done) {
-      this.$refs.musicList.$el.style.transition = 'all 3s'
-      this.$refs.musicList.$el.style.transform = `translate3d(0, 100%, 0)`
-      this.$refs.musicList.$el.addEventListener('transitionend', done)
-    },
-    afterEnter () {
-      this.$refs.musicList.$el.style.transition = ''
-      this.$refs.musicList.$el.style.transform = ''
-    },
-    leave (el, done) {
-      this.$refs.musicList.$el.style.transition = 'all 3s'
-      this.$refs.musicList.$el.style.transform = `translate3d(100%, 0, 0)`
     }
+    // beforeEnter (el) {
+    //   this.$refs.musicList.$el.style.transition = 'all 3s'
+    //   this.$refs.musicList.$el.style.transform = `translate3d(0, 100%, 0)`
+    // },
+    // enter (el, done) {
+    //   this.$refs.musicList.$el.style.transition = 'all 3s'
+    //   this.$refs.musicList.$el.style.transform = `translate3d(0, 100%, 0)`
+    //   this.$refs.musicList.$el.addEventListener('transitionend', done)
+    // },
+    // afterEnter () {
+    //   this.$refs.musicList.$el.style.transition = ''
+    //   this.$refs.musicList.$el.style.transform = ''
+    // },
+    // leave (el, done) {
+    //   this.$refs.musicList.$el.style.transition = 'all 3s'
+    //   this.$refs.musicList.$el.style.transform = `translate3d(100%, 0, 0)`
+    // }
   }
 }
 </script>
 
 // <style lang="scss" scoped>
-// .slideTest-enter-active, .slideTest-leave-active {
-//    transition: all  2s
-// }
-// .slideTest-enter, .slideTest-leave-to {
-//   transform: translateX(100%)
-// }
+.musicList.slide-enter-active, .musicList.slide-leave-active {
+   transition: all  3s
+}
+.musicList.slide-enter, .musicList.slide-leave-to {
+  transform: translateX(100%)
+}
 </style>

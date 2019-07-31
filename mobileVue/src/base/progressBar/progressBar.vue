@@ -25,17 +25,22 @@ export default {
   },
   methods: {
     progressTouchStart (e) {
+      this.touch.initial = true
       this.touch.startX = e.touches[0].pageX
       this.touch.left = this.$refs.progress.clientWidth
     },
     progressTouchMove (e) {
-      console.log(12121)
+      if (!this.touch.initial) {
+        return
+      }
       const deltaX = e.touches[0].pageX - this.touch.startX
       const MoveWidth = Math.min(this.$refs.progressBar.clientWidth, Math.max(0, this.touch.left + deltaX))
+      console.log(MoveWidth)
       this.$refs.progressBtn.style.transform = `translate3d(${MoveWidth}px, 0, 0)`
       this.$refs.progress.style.width = `${MoveWidth}px`
     },
     progressTouchend () {
+      this.touch.initial = false
       this.$emit('percentChange', this.$refs.progress.clientWidth / this.$refs.progressBar.clientWidth)
     },
     progressClick (e) {
@@ -50,9 +55,11 @@ export default {
   },
   watch: {
     precent (newValue) {
-      const width = this.$refs.progressBar.clientWidth * newValue
-      this.$refs.progressBtn.style.transform = `translate3d(${newValue * width}px, 0, 0)`
-      this.$refs.progress.style.width = `${newValue * width}px`
+      if (newValue >= 0 && !this.touch.initial) {
+        const width = this.$refs.progressBar.clientWidth * newValue
+        this.$refs.progressBtn.style.transform = `translate3d(${newValue * width}px, 0, 0)`
+        this.$refs.progress.style.width = `${newValue * width}px`
+      }
     }
   }
 }

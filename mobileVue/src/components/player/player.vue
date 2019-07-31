@@ -50,16 +50,16 @@
           <div class="icon i-left">
             <i></i>
           </div>
-          <div class="icon i-left" @click="prev">
+          <div class="icon i-left" @click="prev" :class="disableCls">
             <i class="icon-prev"></i>
           </div>
-          <div class="icon i-center">
+          <div class="icon i-center" :class="disableCls">
             <i :class="playIcon" @click="togglePlaying"></i>
           </div>
-          <div class="icon icon-right" @click="next">
+          <div class="icon icon-right" @click="next" :class="disableCls">
             <i class="icon-next"></i>
           </div>
-          <div class="icon i-right">
+          <div class="icon i-right" :class="disableCls">
             <i class="icon"></i>
           </div>
         </div>
@@ -83,7 +83,10 @@
       </div>
     </div>
   </transition>
-  <audio :src="playSrc" ref="audio" @timeupdate="updateTime"></audio>
+  <audio :src="playSrc" ref="audio" @timeupdate="updateTime" @canplay="ready" @error="error"></audio>
+  <!-- 定义canplay的原因是，当快速点击下一曲，上一曲的时候，歌曲可能还没加载完成，播放就会报错，
+  而canplay方法是歌曲加载完成后触发，所以可以通过该方法进行判断， error是对canplay方法的完善完善
+   -->
 </div>
 </template>
 
@@ -107,6 +110,9 @@ export default {
     percent () {
       return this.currentTime / this.currentSong.interval
     },
+    disableCls () {
+      return this.songReady ? '' : 'disable'
+    },
     ...mapGetters([
       'fullScreen',
       'playlist',
@@ -125,7 +131,8 @@ export default {
   data () {
     return {
       src: '',
-      currentTime: 0
+      currentTime: 0,
+      songReady: false
     }
   },
   watch: {
@@ -135,9 +142,7 @@ export default {
       })
     },
     playing (newValue) {
-        newValue ? this.$nextTick(() => {
-          this.$refs.audio.play()
-        }) : this.$refs.audio.pause()
+      newValue ? this.$nextTick(() => { this.$refs.audio.play() }) : this.$nextTick(() => { this.$refs.audio.pause() })
     }
   },
   components: {
@@ -151,12 +156,18 @@ export default {
       this.SET_FULL_SCREEN(false)
     },
     togglePlaying () {
+      if (!this.songReady) {
+        return
+      }
       this.SET_PLAYING_STATE(!this.playing)
     },
     open () {
       this.SET_FULL_SCREEN(true)
     },
     prev () {
+      if (!this.songReady) {
+        return
+      }
       if (!this.playing) {
         this.SET_PLAYING_STATE(true)
       }
@@ -171,11 +182,23 @@ export default {
         this.SET_PLAYSRC(`${ht}${content}`)
         this.SET_CURRENT_INDEX(index)
       })
+      this.songReady = false
+    },
+    ready () {
+      this.songReady = true
+    },
+    error (e) {
+       // error事件是为了完善canplay事件，是想有些时候可能网络原因歌曲一直无法加载，导致this.songReady无法为true
+       //所以出现错误的话，我们也设置为true就好了
+     this.songReady = true
     },
     percentChange (val) {
       this.$refs.audio.currentTime = this.currentSong.interval * val
     },
     next () {
+      if (!this.songReady) {
+        return
+      }
       if (!this.playing) {
         this.SET_PLAYING_STATE(true)
       }
@@ -189,6 +212,7 @@ export default {
         this.SET_PLAYSRC(`${ht}${content}`)
         this.SET_CURRENT_INDEX(index)
       })
+      this.songReady = false
     },
     updateTime (e) {
       this.currentTime = e.target.currentTime
